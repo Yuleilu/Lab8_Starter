@@ -1,7 +1,7 @@
 describe('Basic user flow for Website', () => {
   // First, visit the lab 8 website
   beforeAll(async () => {
-    await page.goto('https://cse110-f2021.github.io/Lab8_Website');
+    await page.goto('http://127.0.0.1:5500/index.html');
   });
 
   // Next, check to make sure that all 20 <product-item> elements have loaded
@@ -85,14 +85,14 @@ describe('Basic user flow for Website', () => {
 //
     const prodItems = await page.$$('product-item');
 
-    for (let i = 0; i < prodItems.length; i++) {
+    for (let i = 1; i < prodItems.length; i++) {
       const prodItem = prodItems[i];
       const shadowRoot = await prodItem.evaluateHandle((el) => el.shadowRoot);
       const button = await shadowRoot.evaluateHandle((el) => el.querySelector('button'));
       await button.click();
     }
     const cartCount = await page.$eval('#cart-count', (element) => element.innerText);
-    expect(cartCount).toBe('19');
+    expect(cartCount).toBe('20');
 //
   }, 10000);
 
@@ -111,7 +111,7 @@ describe('Basic user flow for Website', () => {
     // Check every <product-item> to make sure their buttons say "Remove from Cart"
     for (let i = 0; i < prodItems.length; i++) {
       const prodItem = prodItems[i];
-      const shadowRoot = await prodItem.shadowRoot();
+      const shadowRoot = await prodItem.getProperty('shadowRoot');
       const button = await shadowRoot.$('button');
       const buttonText = await button.evaluate((element) => element.innerText);
 
@@ -129,7 +129,7 @@ describe('Basic user flow for Website', () => {
     // At this point he item 'cart' in localStorage should be 
     // '[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]', check to make sure it is
     const cartLocalStorage = await page.evaluate(() => localStorage.getItem('cart'));
-    expect(cartLocalStorage).toBe('[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]');
+    expect(cartLocalStorage).toBe('[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]');
   });
 
   // Checking to make sure that if you remove all of the items from the cart that the cart
@@ -141,8 +141,9 @@ describe('Basic user flow for Website', () => {
     // Once you have, check to make sure that #cart-count is now 0
     const prodItems = await page.$$('product-item');
     for (let i = 0; i < prodItems.length; i++) {
-      const productItem = prodItems[i];
-      const button = await productItem.$('button');
+      const prodItem = prodItems[i];
+      const shadowRoot = await prodItem.getProperty('shadowRoot');
+      const button = await shadowRoot.$('button');
       await button.click();
     }
     const cartCount = await page.$eval('#cart-count', (element) => element.innerText);
@@ -160,10 +161,10 @@ describe('Basic user flow for Website', () => {
     await page.reload();
     const prodItems = await page.$$('product-item');
     for (let i = 0; i < prodItems.length; i++) {
-      const productItem = prodItems[i];
-      const shadowRoot = await prodItem.shadowRoot();
-      const button = await productItem.$('button');
-      const buttonText = await button.evaluate((node) => node.innerText);
+      const prodItem = prodItems[i];
+      const shadowRoot = await prodItem.getProperty('shadowRoot');
+      const button = await shadowRoot.$('button');
+      const buttonText = await button.evaluate((element) => element.innerText);
       expect(buttonText).toBe('Add to Cart');
     }
     const cartCount = await page.$eval('#cart-count', (element) => element.innerText);
@@ -177,6 +178,6 @@ describe('Basic user flow for Website', () => {
     // TODO - Step 8
     // At this point he item 'cart' in localStorage should be '[]', check to make sure it is
     const cartLocalStorage = await page.evaluate(() => localStorage.getItem('cart'));
-    expect(cartLocalStorage).toBe('[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]');
+    expect(cartLocalStorage).toBe('[]');
   });
 });
